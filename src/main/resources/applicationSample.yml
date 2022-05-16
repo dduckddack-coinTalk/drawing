@@ -1,0 +1,30 @@
+server:
+  port: 9092
+
+cloud:
+  aws:
+    credentials:
+      accessKey:
+      secretKey:
+    s3:
+      bucket:
+    region:
+      static:
+    stack:
+      auto: false
+    localStoragePath:
+
+logging:
+  level:
+    root: info
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+
+spring:
+  influxdb:
+    url:
+    database:
+    username:
+    retention-policy: autogen
