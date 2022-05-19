@@ -69,14 +69,14 @@ public class DrawingServiceImpl implements DrawingService {
                                 String filename = String.valueOf(UUID.randomUUID()) + filePart.filename();
                                 // 파일파트 받아서 로컬저장소에 저장 (비동기 논블럭킹으로 실행) -> 로컬 저장소에 저장된 파일로 s3업로드 -> s3파일 업로드 후 로컬 저장소 파일 삭제
                                 filePart.transferTo(Paths.get(localStoragePath + filename)).subscribe();
-                                drawingDataMap.put("filename", filename);
+                                drawingDataMap.put("image", filename);
                                 return filePart;
                             })
                             .subscribe();
                 }
             });
 
-            String filename = (String) drawingDataMap.get("filename");
+            String filename = (String) drawingDataMap.get("image");
             // 로컬 저장소에 저장된 파일로 s3업로드 -> s3파일 업로드 후 로컬 저장소 파일 삭제
             File files = checkCreateFile(filename);
 
@@ -99,6 +99,7 @@ public class DrawingServiceImpl implements DrawingService {
                     .build();
             influxDBTemplate.write(point);
 
+            drawingDataMap.put("image", amazonS3Url);
             result.setStatus("ok");
             result.setMessage(drawingDataMap);
 
@@ -118,6 +119,13 @@ public class DrawingServiceImpl implements DrawingService {
     public Mono<DrawingResponse> getDrawingData(String userId) {
 
         DrawingResponse result = new DrawingResponse();
+
+        if("".equals(userId) || userId == null){
+            result.setStatus("error");
+            result.setMessage("유저 아이디를 입력해 주세요.");
+            return Mono.just(result);
+        }
+        
         List<DrawingResponseInnerData> resultList = new ArrayList<>();
         String q = "SELECT * FROM drawing_image " +
                 "WHERE userId= '"+userId+"' " +
@@ -135,7 +143,7 @@ public class DrawingServiceImpl implements DrawingService {
                 .map(data-> {
                     data.forEach(item-> {
                         DrawingResponseInnerData drawingResponseInnerData =
-                                new DrawingResponseInnerData(item.getTime().toEpochMilli(), item.getUserId(), item.getCoin(), item.getImage());
+                                new DrawingResponseInnerData(item.getTime().toEpochMilli(), item.getUserId(), item.getImage(), item.getCoin());
                         resultList.add(drawingResponseInnerData);
                     });
                     result.setStatus("ok");
