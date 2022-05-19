@@ -32,13 +32,14 @@ Responses
 
 
 <br></br>
-### URI : `GET` / drawing / getImage
-사용자가 저장한 차트 이미지를 조회하고 불러오는 API.
+### URI : `POST` / drawing / getImage
+사용자가 저장한 특정 코인의 차트 이미지를 조회하고 불러오는 API.
 
 Parameters
 | name | type | Description | Default |
 |:---|:---:|:---:|:---:|
-| `userId` |String|조회할 유저의 아이디||
+| `userId` |String|유저 아이디||
+| `coin` |String|코인명 ||
 
 Responses
 <pre>
