@@ -1,6 +1,7 @@
 package com.cointalk.drawing.handler;
 
 import com.cointalk.drawing.domain.DrawingResponse;
+import com.cointalk.drawing.domain.DrawingResponseInnerData;
 import com.cointalk.drawing.service.DrawingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -25,7 +26,10 @@ public class DrawingHandler {
     }
 
     public Mono<ServerResponse> getImage(ServerRequest request) {
-        Mono<DrawingResponse> drawingResponseMono = drawingService.getDrawingData((request.queryParam("userId").get()));
+        Mono<DrawingResponse> drawingResponseMono = request.bodyToMono(DrawingResponseInnerData.class)
+                .flatMap(drawingService::getDrawingData)
+                .log()
+                ;
 
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

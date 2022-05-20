@@ -44,6 +44,9 @@ public class DrawingServiceImpl implements DrawingService {
     @Value("${cloud.aws.localStoragePath}")
     public String localStoragePath;  // 로컬 저장소 경로
 
+    @Value("${spring.influxdb.database}")
+    public String database;
+
     @Override
     public DrawingResponse uploadImage(MultiValueMap<String, Part> data) {
         DrawingResponse result = new DrawingResponse();
@@ -116,8 +119,9 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public Mono<DrawingResponse> getDrawingData(String userId) {
-
+    public Mono<DrawingResponse> getDrawingData(DrawingResponseInnerData requestData) {
+        String userId = requestData.getUserId();
+        String coin = requestData.getCoin();
         DrawingResponse result = new DrawingResponse();
 
         if("".equals(userId) || userId == null){
@@ -129,10 +133,13 @@ public class DrawingServiceImpl implements DrawingService {
         List<DrawingResponseInnerData> resultList = new ArrayList<>();
         String q = "SELECT * FROM drawing_image " +
                 "WHERE userId= '"+userId+"' " +
-                "ORDER BY DESC";
+                "AND coin= '"+coin+"' " +
+                "ORDER BY DESC " +
+                "LIMIT 20"
+                ;
 
         Query query = BoundParameterQuery.QueryBuilder.newQuery(q)
-                .forDatabase("coin")
+                .forDatabase(database)
                 .create();
 
         QueryResult queryResult = influxDBTemplate.query(query);
