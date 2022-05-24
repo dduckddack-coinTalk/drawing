@@ -18,7 +18,7 @@ public class DrawingHandler {
     private final DrawingService drawingService;
 
     public Mono<ServerResponse> uploadImage(ServerRequest request){
-        Mono<DrawingResponse> drawingResponseMono = request.multipartData().map(drawingService::uploadImage);
+        Mono<DrawingResponse> drawingResponseMono = request.multipartData().map(drawingService::uploadImage); //multipartData 로 이미지 파일과 사용자 정보를 받아 처리
 
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -53,8 +53,9 @@ public class DrawingServiceImpl implements DrawingService {
         Map<String, Object> drawingDataMap = new HashMap<>();
         try {
 
+            // MultiValueMap 으로 받은 이미지파일과 사용자 정보를 구분해서 저장
             data.forEach((arg1, arg2) -> {
-                if (!arg1.equals("image")) {  // 이미지 파일이 아닌 파라미터 저장
+                if (!arg1.equals("image")) {  // 사용자 정보 저장
                     arg2.forEach(body -> {
                         body.content().subscribe(dataBuffer -> {
                             byte[] bytes = new byte[dataBuffer.readableByteCount()];
@@ -64,7 +65,7 @@ public class DrawingServiceImpl implements DrawingService {
                             drawingDataMap.put(arg1, valueFromMultipart);
                         });
                     });
-                } else {  // formData 로 받은 파일파트 이미지 파일 업로드 및 S3 업로드 주소 저장
+                } else {  // formData 로 받은 filePart 형식 이미지 파일 업로드 및 S3 업로드 주소 저장
                     Mono.just(data.get("image"))
                             .flatMapMany(Flux::fromIterable)
                             .cast(FilePart.class)
@@ -93,7 +94,7 @@ public class DrawingServiceImpl implements DrawingService {
                 }
             }
 
-            // influxDB에 유저, 코인종류, 차트시간, 이미지 주소 저장
+            // influxDB에 유저 ID, 코인종류, 차트시간, S3에 저장된 이미지 주소값 저장
             Point point = Point.measurement("drawing_image")
                     .time(Long.parseLong((String) drawingDataMap.get("time")), TimeUnit.MILLISECONDS)
                     .tag("userId", (String) drawingDataMap.get("userId"))
@@ -158,6 +159,7 @@ public class DrawingServiceImpl implements DrawingService {
                     return result;
                 });
     }
+    // FilePart 로 받은 파일 생성되었는지 확인
     private File checkCreateFile(String filename) throws InterruptedException {
         File files = new File(localStoragePath + filename);
         boolean fileExist = files.exists();
@@ -188,6 +190,7 @@ public class DrawingServiceImpl implements DrawingService {
                     break;
                 }
             }
+            // 로컬 저장소에 임시 저장된 파일 삭제
             if (files.delete()) {
                 log.info("local file delete");
             }

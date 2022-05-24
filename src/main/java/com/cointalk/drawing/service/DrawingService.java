@@ -8,8 +8,10 @@ import reactor.core.publisher.Mono;
 
 public interface DrawingService {
 
+    // 차트 이미지 Amazon S3에 저장
     DrawingResponse uploadImage(MultiValueMap<String, Part> data);
 
+    // 차트 이미지와 사용자 정보 조회
     Mono<DrawingResponse> getDrawingData(DrawingResponseInnerData drawingResponseInnerData);
 
 }

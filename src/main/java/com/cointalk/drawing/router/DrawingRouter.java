@@ -16,7 +16,7 @@ public class DrawingRouter {
     @Bean
     public RouterFunction<ServerResponse> route(DrawingHandler cointalkDrawingHandler) {
         return RouterFunctions
-                .route(POST("/drawing/uploadImage"), cointalkDrawingHandler::uploadImage) // 차트 이미지 S3에 저장
+                .route(POST("/drawing/uploadImage"), cointalkDrawingHandler::uploadImage) // 차트 이미지 Amazon S3에 저장
                 .andRoute(POST("/drawing/getImage"), cointalkDrawingHandler::getImage) // 사용자가 저장한 차트 이미지 조회 기능 제공
                 ;
     }
